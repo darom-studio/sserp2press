@@ -47,6 +47,7 @@ h2{font-size:15px;font-weight:500;margin:0}
 .panel{display:flex;flex-direction:column;gap:16px}
 
 .btn{font:inherit;font-size:14px;font-weight:400;border-radius:999px;padding:8px 20px;min-height:40px;cursor:pointer;border:1px solid var(--fg);background:var(--fg);color:var(--bg)}
+.btn{text-decoration:none;display:inline-flex;align-items:center;gap:8px}
 .btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
 .btn:disabled{opacity:.4;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -61,6 +62,8 @@ button:focus-visible,input:focus-visible,label:focus-within{outline:2px solid va
 .file .nm{font-size:14px;font-weight:400;overflow-wrap:anywhere}
 .file .meta{font-size:12px;color:var(--muted)}
 .file.dl{color:inherit;text-decoration:none}.file.dl:hover{border-color:var(--fg)}
+.thumbs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.thumbs img,.thumbs canvas{height:160px;width:auto;flex:none;border:1px solid var(--line);background:#fff;border-radius:2px}
 .file .st{margin-inline-start:auto;font-size:12px;color:var(--ok);white-space:nowrap}
 
 .prog{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
@@ -135,9 +138,9 @@ footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
 
   <nav class="steps" aria-label="שלבים">
     <div class="stage-h" id="h-sserp"><span class="name">SSERP</span>
-      <ol><li><button type="button" data-step="1">1 · קובץ</button></li><li><button type="button" data-step="2">2 · טקסט</button></li><li><button type="button" data-step="3">3 · תיקונים</button></li></ol></div>
+      <ol><li><button type="button" data-step="1">1 · קובץ</button></li><li><button type="button" data-step="2">2 · אבחון</button></li><li><button type="button" data-step="3">3 · טקסט</button></li><li><button type="button" data-step="4">4 · תיקונים</button></li></ol></div>
     <div class="stage-h" id="h-press"><span class="name">PRESS</span>
-      <ol><li><button type="button" data-step="4">4 · פורמטים</button></li><li><button type="button" data-step="5">5 · קבצים</button></li></ol></div>
+      <ol><li><button type="button" data-step="5">5 · פורמטים</button></li><li><button type="button" data-step="6">6 · קבצים</button></li></ol></div>
   </nav>
 
   <!-- 1 upload -->
@@ -147,11 +150,28 @@ footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>
       <span>גוררים לכאן PDF או סריקה</span>
       <span class="btn ghost" role="presentation">בחירת קובץ</span>
-      <input type="file" id="fileIn" accept=".pdf,.zip,image/*" hidden>
+      <input type="file" id="fileIn" accept=".pdf,.zip,image/*" multiple hidden>
     </label>
     <div class="row"><button type="button" class="linkbtn" id="useSample">או: קובץ ההדגמה, אהבת ציון, וילנה 1853</button></div>
     <div id="fileCard" hidden></div>
-    <div class="row"><button type="button" class="btn" id="go2" disabled>חילוץ הטקסט</button></div>
+    <div class="row"><button type="button" class="btn" id="go2" disabled>אבחון</button></div>
+  </section>
+
+  <!-- 2 diagnosis -->
+  <section class="panel" id="sD" hidden>
+    <h2>אבחון</h2>
+    <div id="diagRun" class="panel"><div class="prog"><i id="bar0"></i></div><div class="progtxt" id="progtxt0" aria-live="polite"></div></div>
+    <div id="diagDone" class="panel" hidden>
+      <div class="thumbs" id="thumbs"></div>
+      <table><tbody id="diagRows"></tbody></table>
+      <div class="empty" id="diagNote"></div>
+      <div class="row" id="diagActions"></div>
+      <div class="panel" id="sendBox" hidden>
+        <div class="empty">שולחים את הקובץ ואת סיכום האבחון לכתובת <span class="addr" style="font-family:var(--mono);direction:ltr;user-select:all">contact@sserp2press.com</span>, ומקבלים הצעת מחיר מפורטת.</div>
+        <textarea id="summary" readonly rows="7" style="font:inherit;font-size:13px;width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--fg);padding:10px"></textarea>
+        <div class="row"><a class="btn" id="mailBtn" href="#">פתיחת מייל</a><button type="button" class="btn ghost" id="copyBtn">העתקת הסיכום</button><span class="count" id="copyMsg" aria-live="polite"></span></div>
+      </div>
+    </div>
   </section>
 
   <!-- 2 text -->
@@ -359,22 +379,24 @@ function buildPage(host, key, withScan){
 }
 
 // ---------- steps ----------
+const SEC=['s1','sD','s2','s3','s4','s5'];
 function go(step){
   S.step=step; S.reached=Math.max(S.reached,step);
-  for(let i=1;i<=5;i++) $('s'+i).hidden = i!==step;
+  SEC.forEach((id,i)=>{ $(id).hidden = (i+1)!==step; });
   document.querySelectorAll('.steps button').forEach(b=>{
     const k=+b.dataset.step; b.className = k===step?'cur':(k<=S.reached?'done':'');
     b.disabled = !(k<=S.reached) ; if(k===step) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current');
   });
-  $('h-sserp').classList.toggle('on',step<=3); $('h-press').classList.toggle('on',step>=4);
-  if(step===2) showText();
+  $('h-sserp').classList.toggle('on',step<=4); $('h-press').classList.toggle('on',step>=5);
+  if(step===2) runDiag();
+  if(step===3) showText();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('.steps button').forEach(b=>b.addEventListener('click',()=>{const k=+b.dataset.step; if(k<=S.reached && k!==S.step) go(k);}));
 
 // 1 · file
-function setFile(f){
-  S.file=f;
+function setFile(f,objs){
+  S.file=f; S.objs=objs||null; S.diag=null;
   $('fileCard').hidden=false;
   $('fileCard').innerHTML='<div class="file"><span class="ic">PDF</span><div><div class="nm"></div><div class="meta"></div></div><span class="st">התקבל</span></div>';
   $('fileCard').querySelector('.nm').textContent=f.name; $('fileCard').querySelector('.nm').dir='auto';
@@ -382,15 +404,95 @@ function setFile(f){
   $('go2').disabled=false;
 }
 const fmtSize=b=>b>1e6?(b/1e6).toFixed(1)+' MB':Math.max(1,Math.round(b/1e3))+' KB';
-$('fileIn').addEventListener('change',e=>{const f=e.target.files[0]; if(f) setFile({name:f.name,size:fmtSize(f.size)});});
+function takeFiles(list){const fs=[...list]; if(!fs.length) return; const tot=fs.reduce((a,f)=>a+f.size,0); setFile({name:fs.length>1?fs.length+' קבצים · '+fs[0].name:fs[0].name,size:fmtSize(tot)},fs);}
+$('fileIn').addEventListener('change',e=>takeFiles(e.target.files));
 $('useSample').addEventListener('click',()=>setFile(SAMPLE));
 const drop=$('drop');
 ['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over');}));
 ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over');}));
-drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f) setFile({name:f.name,size:fmtSize(f.size)});});
+drop.addEventListener('drop',e=>takeFiles(e.dataTransfer.files));
 $('go2').addEventListener('click',()=>{S.extracted=false; go(2);});
 
-// 2 · text
+
+// 2 · diagnosis (runs in the viewer's browser; nothing is uploaded)
+const PDFJS='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function loadPdfJs(){ return new Promise((res,rej)=>{ if(window.pdfjsLib) return res(window.pdfjsLib); const sc=document.createElement('script'); sc.src=PDFJS+'pdf.min.js'; sc.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'; res(window.pdfjsLib); }; sc.onerror=rej; document.head.append(sc); }); }
+const HEB=/[א-ת]/g;
+function step0(t,pct){ $('progtxt0').textContent=t; $('bar0').style.width=pct+'%'; }
+function rows(list){ $('diagRows').innerHTML=''; list.forEach(([k,v])=>{ const tr=document.createElement('tr'); const a=document.createElement('td'); a.textContent=k; const b=document.createElement('td'); b.textContent=v; tr.append(a,b); $('diagRows').append(tr); }); }
+function actions(own){
+  const A=$('diagActions'); A.innerHTML='';
+  if(own){
+    const s=document.createElement('button'); s.type='button'; s.className='btn'; s.textContent='שליחה לאבחון מלא והצעת מחיר'; s.onclick=()=>{ $('sendBox').hidden=false; prepSend(); };
+    const c=document.createElement('button'); c.type='button'; c.className='btn ghost'; c.textContent='המשך ההדגמה עם אהבת ציון'; c.onclick=()=>{ setFile(SAMPLE); go(3); };
+    A.append(s,c);
+  } else {
+    const n=document.createElement('button'); n.type='button'; n.className='btn'; n.textContent='חילוץ הטקסט'; n.onclick=()=>go(3); A.append(n);
+  }
+}
+function prepSend(){
+  const lines=['אבחון ראשוני · SSERP2PRESS','קובץ: '+S.file.name+' ('+S.file.size+')',...S.diag.map(([k,v])=>k+': '+v),'','שם:','טלפון:','מה רוצים לקבל (PDF לדפוס, ספר דיגיטלי, אינדיזיין, וורד):'];
+  const txt=lines.join('\n'); $('summary').value=txt;
+  $('mailBtn').href='mailto:contact@sserp2press.com?subject='+encodeURIComponent('אבחון ספר · '+S.file.name)+'&body='+encodeURIComponent(txt);
+}
+$('copyBtn').addEventListener('click',()=>{ const t=$('summary'); const done=()=>{$('copyMsg').textContent='הועתק';}; if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t.value).then(done,()=>{t.select();$('copyMsg').textContent='סמנו והעתיקו';}); } else { t.select(); $('copyMsg').textContent='סמנו והעתיקו'; } });
+function thumbImg(src){ const i=new Image(); i.src=src; i.alt=''; $('thumbs').append(i); }
+async function runDiag(){
+  if(S.diag){ $('diagRun').hidden=true; $('diagDone').hidden=false; return; }
+  $('diagRun').hidden=false; $('diagDone').hidden=true; $('thumbs').innerHTML=''; $('sendBox').hidden=true;
+  const own=!!S.objs; let R=[], note='';
+  try{
+    if(!own){
+      for(const [t,p] of [['קריאת הקובץ',25],['ספירת עמודים',50],['בדיקת הסריקה',75],['סיכום',100]]){ step0(t,p); await new Promise(r=>setTimeout(r,550)); }
+      thumbImg('cover1853.jpg'); thumbImg('page1853.jpg');
+      R=[['עמודים','222'],['סוג המקור','סריקה, בלי שכבת טקסט'],['רזולוציה','300 נקודות לאינץ׳'],['שפה','עברית; רוסית בעטיפה'],['מצב העותק','כתמי מים בעטיפה, חותמות ספרייה']];
+      note='הסריקה מתאימה לשחזור מלא.';
+    } else {
+      const f=S.objs[0], isPdf=/\.pdf$/i.test(f.name)||f.type==='application/pdf', imgs=S.objs.filter(x=>/^image\//.test(x.type));
+      if(isPdf){
+        step0('קריאת הקובץ',10); const lib=await loadPdfJs();
+        const doc=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+        const n=doc.numPages; step0('ספירת עמודים · '+n,30);
+        const p1=await doc.getPage(1); const v=p1.getViewport({scale:1});
+        const mm=x=>Math.round(x/72*25.4);
+        let chars=0, heb=0; const probe=[...new Set([1,2,3,Math.ceil(n/2),n].filter(i=>i>=1&&i<=n))];
+        for(const i of probe){ const tc=await (await doc.getPage(i)).getTextContent(); const t=tc.items.map(x=>x.str).join(''); chars+=t.replace(/\s/g,'').length; heb+=(t.match(HEB)||[]).length; }
+        step0('בדיקת שכבת הטקסט',55);
+        const perPage=chars/probe.length, digital=perPage>80;
+        let dpi=null;
+        try{ const pg=await doc.getPage(Math.ceil(n/2)); const ops=await pg.getOperatorList(); const pw=pg.getViewport({scale:1}).width;
+          for(let k=0;k<ops.fnArray.length;k++){ if(ops.fnArray[k]===lib.OPS.paintImageXObject){ const nm=ops.argsArray[k][0]; const img=await new Promise(r=>{ try{ pg.objs.get(nm,r); }catch(e){ r(null); } setTimeout(()=>r(null),1500); }); if(img&&img.width){ dpi=Math.round(img.width/(pw/72)); break; } } } }catch(e){}
+        step0('תמונות עמודים',75);
+        for(const i of [...new Set([1,Math.ceil(n*0.1),Math.ceil(n/2),Math.ceil(n*0.75)].filter(i=>i>=1&&i<=n))]){ const pg=await doc.getPage(i); const vp=pg.getViewport({scale:1}); const sc=320/vp.height; const vv=pg.getViewport({scale:sc}); const c=document.createElement('canvas'); c.width=Math.round(vv.width); c.height=Math.round(vv.height); await pg.render({canvasContext:c.getContext('2d'),viewport:vv}).promise; $('thumbs').append(c); }
+        const scan=!!dpi;
+        const kind = scan ? (digital?'סריקה עם שכבת טקסט אוטומטית':'סריקה, בלי שכבת טקסט') : (digital?'PDF דיגיטלי עם שכבת טקסט':'PDF בלי שכבת טקסט');
+        R=[['עמודים',String(n)],['גודל עמוד',mm(v.width)+' × '+mm(v.height)+' מ״מ'],['סוג המקור',kind]];
+        if(dpi) R.push(['רזולוציה','כ־'+dpi+' נקודות לאינץ׳']);
+        R.push(['שפה',digital?(heb/Math.max(chars,1)>0.4?'עברית':'לא עברית בעיקר'):'תיבדק בחילוץ']);
+        if(scan&&dpi<250) note='הרזולוציה נמוכה לשחזור מדויק. מומלץ לסרוק מחדש ב־400 נקודות לאינץ׳ לפחות.';
+        else if(scan&&digital) note='שכבת הטקסט שבסריקה נוצרה אוטומטית ואינה אמינה. הטקסט ישוחזר מחדש וייבדק אות באות מול העמודים.';
+        else if(scan) note='הסריקה מתאימה לשחזור.';
+        else if(digital) note='יש בקובץ שכבת טקסט. השחזור מהיר יותר, והטקסט ייבדק אות באות מול העמודים.';
+        else note='הקובץ ייבדק אצלנו.';
+      } else if(imgs.length){
+        step0('קריאת התמונות',40);
+        const dims=await new Promise(r=>{ const im=new Image(); im.onload=()=>r([im.naturalWidth,im.naturalHeight]); im.onerror=()=>r(null); im.src=URL.createObjectURL(imgs[0]); });
+        imgs.slice(0,4).forEach(x=>thumbImg(URL.createObjectURL(x)));
+        R=[['עמודים',String(imgs.length)],['סוג המקור','סריקה, תמונות']];
+        if(dims) R.push(['גודל תמונה',dims[0]+' × '+dims[1]+' פיקסלים']);
+        note = dims&&dims[1]<2000 ? 'התמונות קטנות לשחזור מדויק. מומלץ לסרוק מחדש ב־400 נקודות לאינץ׳ לפחות.' : 'הסריקה מתאימה לשחזור.';
+      } else {
+        R=[['קובץ',f.name]]; note='בהדגמה אפשר לאבחן PDF או תמונות. קבצים אחרים מאבחנים אצלנו.';
+      }
+      step0('סיכום',100);
+    }
+  }catch(e){ R=[['קובץ',S.file.name]]; note='לא הצלחנו לקרוא את הקובץ כאן. אפשר לשלוח אותו לאבחון אצלנו.'; }
+  S.diag=R; rows(R);
+  $('diagNote').innerHTML=''; $('diagNote').append(note); if(own){ const sm=document.createElement('small'); sm.textContent='האבחון נעשה במחשב שלך. הקובץ לא נשלח לשום מקום.'; $('diagNote').append(sm); }
+  actions(own); $('diagRun').hidden=true; $('diagDone').hidden=false;
+}
+
+// 3 · text
 function run(bar,txt,steps,done){
   let i=0; const tick=()=>{ if(i>=steps.length){done();return;} bar.style.width=((i+1)/steps.length*100)+'%'; txt.textContent=steps[i]; i++; setTimeout(tick,650); }; bar.style.width='0'; tick();
 }
@@ -407,16 +509,16 @@ function renderText(){
 $('pg-cover').onclick=()=>{S.page='cover';renderText();};
 $('pg-p1').onclick=()=>{S.page='p1';renderText();};
 $('q').oninput=e=>{S.q=e.target.value;renderText();};
-$('go3').addEventListener('click',()=>go(3));
+$('go3').addEventListener('click',()=>go(4));
 
 // 3 · corrections
-$('go4').addEventListener('click',()=>go(4));
+$('go4').addEventListener('click',()=>go(5));
 
 // 4 · formats
 $('go5').addEventListener('click',()=>{
   S.fmts=[...document.querySelectorAll('.fmt input:checked')].map(i=>i.value);
   if(!S.fmts.length) return;
-  S.prev=S.fmts[0]; go(5); make();
+  S.prev=S.fmts[0]; go(6); make();
 });
 document.querySelectorAll('.fmt input').forEach(i=>i.addEventListener('change',()=>{$('go5').disabled=!document.querySelector('.fmt input:checked');}));
 
@@ -435,7 +537,7 @@ function renderFiles(){
   else if(S.prev==='epub'){ v.innerHTML='<div class="phone"><div class="screen" lang="he" dir="rtl"><p class="au">אברהם מאפו</p><h3>אהבת ציון</h3><div class="ch">א</div><p>'+toHTML(P1.join(' '))+'</p><p>'+toHTML(P2.join(' '))+' …</p></div></div>'; }
   else { v.innerHTML='<div class="doc" lang="he" dir="rtl"><p class="t">א</p><p>'+toHTML(P1.join(' '))+'</p><p>'+toHTML(P2.join(' '))+' …</p></div>'; }
 }
-$('restart').addEventListener('click',()=>{S.reached=1;S.file=null;S.extracted=false;S.q='';$('q').value='';$('fileCard').hidden=true;$('go2').disabled=true;$('fileIn').value='';go(1);});
+$('restart').addEventListener('click',()=>{S.reached=1;S.file=null;S.objs=null;S.diag=null;$('sendBox').hidden=true;S.extracted=false;S.q='';$('q').value='';$('fileCard').hidden=true;$('go2').disabled=true;$('fileIn').value='';go(1);});
 
 go(1);
 </script>
