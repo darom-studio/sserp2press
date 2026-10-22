@@ -60,6 +60,7 @@ button:focus-visible,input:focus-visible,label:focus-within{outline:2px solid va
 .file .ic{width:34px;height:42px;border:1px solid var(--line);border-radius:4px;display:flex;align-items:flex-end;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted);padding-bottom:4px;box-sizing:border-box;flex:none}
 .file .nm{font-size:14px;font-weight:400;overflow-wrap:anywhere}
 .file .meta{font-size:12px;color:var(--muted)}
+.file.dl{color:inherit;text-decoration:none}.file.dl:hover{border-color:var(--fg)}
 .file .st{margin-inline-start:auto;font-size:12px;color:var(--ok);white-space:nowrap}
 
 .prog{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
@@ -128,7 +129,7 @@ footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
 
 <div class="wrap" dir="rtl" lang="he">
   <header>
-    <span class="logo" aria-label="SSERP2PRESS"><span class="a">SSERP</span><span class="b">2</span>PRESS</span>
+    <a class="logo" href="https://sserp2press.com/" aria-label="SSERP2PRESS, לדף הבית" style="color:inherit;text-decoration:none"><span class="a">SSERP</span><span class="b">2</span>PRESS</a>
     <span class="tag">הדגמה</span>
   </header>
 
@@ -275,16 +276,16 @@ const PAGES = {
     ['__rule',81.0,45.7,46.6],
     ['ВИЛЬНО,',82.4,42.7,44,3.0,'j',700,1],
     ['Въ Типографіи. Р. М. Ромма.',84.9,28,28.6,2.8,'j',700,1],
-    ['__rule',86.9,47.5,48.3],
+    ['__rule',87.6,47.5,48.3],
     ['1853.',89.0,46,47,3.0,'c',700,1]
   ]}
 };
 const SAMPLE = {name:'אהבת ציון – וילנה 1853', size:'32.4 MB', pages:222};
 const FMT = {
-  pdf:{label:'PDF לדפוס', file:'אהבת ציון 1853 – לדפוס', ic:'PDF'},
-  epub:{label:'ספר דיגיטלי', file:'אהבת ציון 1853', ic:'EPUB'},
-  idml:{label:'אינדיזיין', file:'אהבת ציון 1853', ic:'IDML'},
-  docx:{label:'וורד', file:'אהבת ציון 1853', ic:'DOCX'}
+  pdf:{label:'PDF לדפוס', file:'אהבת ציון 1853 – לדפוס', ic:'PDF', url:'ahavat-zion-1853-print.pdf'},
+  epub:{label:'ספר דיגיטלי', file:'אהבת ציון 1853', ic:'EPUB', url:'ahavat-zion-1853.epub'},
+  idml:{label:'אינדיזיין', file:'אהבת ציון 1853', ic:'IDML', url:'ahavat-zion-1853.idml'},
+  docx:{label:'וורד', file:'אהבת ציון 1853', ic:'DOCX', url:'ahavat-zion-1853.docx'}
 };
 
 // ---------- helpers ----------
@@ -425,7 +426,7 @@ function make(){
 }
 function renderFiles(){
   $('fileList').innerHTML='';
-  S.fmts.forEach(f=>{const d=document.createElement('div');d.className='file';d.innerHTML='<span class="ic"></span><div><div class="nm"></div><div class="meta"></div></div><span class="st">מוכן</span>';d.querySelector('.ic').textContent=FMT[f].ic;d.querySelector('.nm').textContent=FMT[f].file;d.querySelector('.meta').textContent=FMT[f].label;$('fileList').append(d);});
+  S.fmts.forEach(f=>{const d=document.createElement('a');d.className='file dl';d.href='https://sserp2press.com/'+FMT[f].url;d.target='_blank';d.rel='noopener';d.innerHTML='<span class="ic"></span><div><div class="nm"></div><div class="meta"></div></div><span class="st">הורדה ↓</span>';d.querySelector('.ic').textContent=FMT[f].ic;d.querySelector('.nm').textContent=FMT[f].file;d.querySelector('.meta').textContent=FMT[f].label;$('fileList').append(d);});
   $('prevTabs').innerHTML='';
   S.fmts.forEach(f=>{const b=document.createElement('button');b.type='button';b.textContent=FMT[f].label;b.setAttribute('aria-pressed',S.prev===f);b.onclick=()=>{S.prev=f;renderFiles();};$('prevTabs').append(b);});
   const v=$('viewer2'); v.innerHTML='';
