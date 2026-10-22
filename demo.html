@@ -3,16 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="SSERP2PRESS · אהבת ציון, מהדורה ראשונה 1853: הסריקה מול הטקסט המשוחזר.">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>body{margin:0}img{max-width:100%}</style>
 <title>אהבת ציון 1853</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300&family=IBM+Plex+Sans+Hebrew:wght@300;400;500&family=Frank+Ruhl+Libre:wght@400;700;900&family=PT+Serif:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&family=IBM+Plex+Sans+Hebrew:wght@300;400;500&family=Frank+Ruhl+Libre:wght@400;700;900&family=PT+Serif:wght@400;700&display=swap">
 <style>
-/* Layout: one quiet column; the old page is the only strong object on screen. */
+/* Layout: one quiet column; two stages (SSERP, PRESS); the old page is the only strong object. */
 :root{
-  --bg:#F7F6F2; --fg:#1E1D1A; --muted:#6F6B63; --line:#DCD9D1; --field:#FFFFFF;
-  --accent:#C2412E; --mark:#F3DB8A;
+  --bg:#F7F6F2; --fg:#1E1D1A; --muted:#6F6B63; --line:#DCD9D1; --field:#FFFFFF; --soft:#EFEDE7;
+  --accent:#C2412E; --ok:#3F6B4A; --mark:#F3DB8A;
   --paper:#FBF8F0; --ink:#1A1916;
   --ui:'IBM Plex Sans Hebrew',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -20,35 +19,66 @@
   --cyr:'PT Serif','Times New Roman',serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#191917; --fg:#E9E6DF; --muted:#A39E94; --line:#34322E; --field:#232220; --accent:#E2735F; --mark:#8A6F1E; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#191917; --fg:#E9E6DF; --muted:#A39E94; --line:#34322E; --field:#232220; --accent:#E2735F; --mark:#8A6F1E; color-scheme:dark}
+  --bg:#191917; --fg:#E9E6DF; --muted:#A39E94; --line:#34322E; --field:#232220; --soft:#2A2926; --accent:#E2735F; --ok:#8DBB97; --mark:#8A6F1E; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#191917; --fg:#E9E6DF; --muted:#A39E94; --line:#34322E; --field:#232220; --soft:#2A2926; --accent:#E2735F; --ok:#8DBB97; --mark:#8A6F1E; color-scheme:dark}
 
 body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-weight:300;font-size:15px;line-height:1.6}
+[hidden]{display:none!important}
 .wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px;display:flex;flex-direction:column;gap:22px}
 header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 16px;border-bottom:1px solid var(--line);padding-bottom:14px}
 .logo{font-family:var(--mono);font-weight:300;font-size:15px;letter-spacing:.02em;direction:ltr}
 .logo .a{color:var(--muted)} .logo .b{color:var(--accent)}
 .tag{font-size:13px;color:var(--muted)}
-h1{font-size:17px;font-weight:400;margin:0;text-wrap:balance}
-.sub{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.m{font-family:var(--mono);letter-spacing:.04em}
 
-.bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between}
+/* stepper */
+.steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.stage-h{display:flex;flex-direction:column;gap:6px}
+.stage-h .name{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:.06em;color:var(--muted);padding-bottom:6px;border-bottom:2px solid var(--line)}
+.stage-h.on .name{color:var(--fg);border-color:var(--fg)}
+.stage-h ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+.stage-h li button{font:inherit;font-size:13px;background:none;border:0;padding:4px 0;min-height:30px;color:var(--muted);cursor:default}
+.stage-h li button.done{color:var(--fg);cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.stage-h li button.cur{color:var(--fg);font-weight:500;cursor:default;text-decoration:none}
+
+h1{font-size:17px;font-weight:400;margin:0;text-wrap:balance}
+h2{font-size:15px;font-weight:500;margin:0}
+.sub{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.panel{display:flex;flex-direction:column;gap:16px}
+
+.btn{font:inherit;font-size:14px;font-weight:400;border-radius:999px;padding:8px 20px;min-height:40px;cursor:pointer;border:1px solid var(--fg);background:var(--fg);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button:focus-visible,input:focus-visible,label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
+.drop{border:1px dashed var(--muted);border-radius:12px;background:var(--field);padding:36px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.drop.over{border-color:var(--fg);background:var(--soft)}
+.drop p{margin:0;font-size:14px;color:var(--muted)}
+.linkbtn{font:inherit;font-size:13px;background:none;border:0;color:var(--fg);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:4px}
+.file{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:12px;background:var(--field);padding:12px 14px}
+.file .ic{width:34px;height:42px;border:1px solid var(--line);border-radius:4px;display:flex;align-items:flex-end;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted);padding-bottom:4px;box-sizing:border-box;flex:none}
+.file .nm{font-size:14px;font-weight:400;overflow-wrap:anywhere}
+.file .meta{font-size:12px;color:var(--muted)}
+.file .st{margin-inline-start:auto;font-size:12px;color:var(--ok);white-space:nowrap}
+
+.prog{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--fg);transition:width .25s linear}
+.progtxt{font-size:13px;color:var(--muted)}
+
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--field)}
 .seg button{font:inherit;font-size:13px;font-weight:400;color:var(--muted);background:none;border:0;border-radius:999px;padding:6px 14px;min-height:34px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-.seg .m{font-family:var(--mono);font-size:12px;letter-spacing:.04em}
-button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.tools{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
-.search{font:inherit;font-size:13px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 14px;min-height:34px;width:200px;max-width:100%;box-sizing:border-box}
+.search{font:inherit;font-size:13px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 14px;min-height:34px;width:190px;max-width:100%;box-sizing:border-box}
 .count{font-size:12px;color:var(--muted)}
 
-.stage{display:flex;flex-direction:column;align-items:center;gap:10px}
-.stage[hidden]{display:none}
-.page{cursor:ew-resize;touch-action:pan-y}
-.page{position:relative;width:min(100%,520px);max-width:100%;container-type:inline-size;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 28px rgba(0,0,0,.08);background:var(--paper);overflow:hidden}
+.viewer{display:flex;flex-direction:column;align-items:center;gap:10px}
+.page{position:relative;width:min(100%,500px);max-width:100%;container-type:inline-size;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 28px rgba(0,0,0,.08);background:var(--paper);overflow:hidden;cursor:ew-resize;touch-action:pan-y}
 .page img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none}
 .rest{position:absolute;inset:0;background:var(--paper);color:var(--ink);font-family:var(--book);clip-path:inset(0 0 0 var(--cut,50%))}
+.page.full .rest{clip-path:none} .page.full{cursor:auto}
 .handle{position:absolute;top:0;bottom:0;left:var(--cut,50%);width:0;border-left:1px solid rgba(0,0,0,.35);pointer-events:none}
+.page.full .handle{display:none}
 .ln{position:absolute;white-space:nowrap;line-height:1}
 .ln > span{display:inline-block;white-space:nowrap}
 .ln.r,.ln.j{text-align:right} .ln.c{text-align:center}
@@ -56,24 +86,42 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .rule{position:absolute;border-top:1px solid var(--ink)}
 .rule.thick{border-top:3px solid var(--ink);height:2px;border-bottom:1px solid var(--ink)}
 mark{background:var(--mark);color:inherit;border-radius:2px}
-.range{width:min(100%,520px);display:flex;align-items:center;gap:10px}
+.range{width:min(100%,500px);display:flex;align-items:center;gap:10px}
 .range input{flex:1;accent-color:var(--fg);min-height:28px}
-.range .m{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.range .m{font-size:11px;color:var(--muted)}
 
-.phone{width:min(100%,360px);border:1px solid var(--line);border-radius:28px;padding:14px;background:var(--field);box-sizing:border-box}
-.screen{background:var(--paper);color:var(--ink);border-radius:16px;padding:22px 20px;height:560px;overflow-y:auto;font-family:var(--book);font-size:18px;line-height:1.75;box-sizing:border-box}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stats div{background:var(--field);padding:12px 14px;display:flex;flex-direction:column}
+.stats b{font-family:var(--mono);font-weight:300;font-size:22px;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--muted)}
+.empty{border:1px solid var(--line);border-radius:12px;background:var(--field);padding:14px;font-size:14px}
+.empty small{display:block;color:var(--muted);font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-weight:500;text-align:right;color:var(--muted);font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:last-child{color:var(--muted);text-align:left;padding-inline-start:12px}
+
+.formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.fmt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;background:var(--field);padding:12px 14px;cursor:pointer}
+.fmt input{margin-top:4px;accent-color:var(--fg);width:16px;height:16px}
+.fmt b{display:block;font-weight:400;font-size:14px}
+.fmt span{font-size:12px;color:var(--muted)}
+.fmt:has(input:checked){border-color:var(--fg)}
+
+.phone{width:min(100%,340px);border:1px solid var(--line);border-radius:28px;padding:12px;background:var(--field);box-sizing:border-box}
+.screen{background:var(--paper);color:var(--ink);border-radius:16px;padding:22px 18px;height:520px;overflow-y:auto;font-family:var(--book);font-size:18px;line-height:1.75;box-sizing:border-box}
 .screen .au{font-size:14px;font-family:var(--ui);color:#6F6B63;margin:0;text-align:center}
 .screen h3{font-size:24px;font-weight:700;margin:0 0 6px;text-align:center}
 .screen .ch{font-size:20px;font-weight:700;text-align:center;margin:12px 0}
 .screen p{margin:0 0 1em;text-align:justify}
+.doc{width:min(100%,500px);background:#FFFFFF;color:#1A1916;border:1px solid var(--line);padding:28px 26px;box-sizing:border-box;font-family:'Times New Roman',var(--book);font-size:15px;line-height:1.7;max-height:520px;overflow:auto}
+.doc p{margin:0 0 .8em;text-align:justify}
+.doc .t{font-weight:700;text-align:center;font-size:18px}
 
-.dec{border-top:1px solid var(--line)}
-.dec h2{font-size:13px;font-weight:500;margin:14px 0 6px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}
-td:last-child{color:var(--muted);text-align:left;padding-inline-start:12px}
 footer{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:12px}
 footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
+@media (max-width:480px){.steps{grid-template-columns:1fr}.stats b{font-size:18px}}
+@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
 </style>
 </head>
 <body>
@@ -84,51 +132,89 @@ footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
     <span class="tag">הדגמה</span>
   </header>
 
-  <div>
-    <h1>אהבת ציון · אברהם מאפו</h1>
-    <p class="sub">מהדורה ראשונה, וילנה תרי״ג (1853)</p>
-  </div>
+  <nav class="steps" aria-label="שלבים">
+    <div class="stage-h" id="h-sserp"><span class="name">SSERP</span>
+      <ol><li><button type="button" data-step="1">1 · קובץ</button></li><li><button type="button" data-step="2">2 · טקסט</button></li><li><button type="button" data-step="3">3 · תיקונים</button></li></ol></div>
+    <div class="stage-h" id="h-press"><span class="name">PRESS</span>
+      <ol><li><button type="button" data-step="4">4 · פורמטים</button></li><li><button type="button" data-step="5">5 · קבצים</button></li></ol></div>
+  </nav>
 
-  <div class="bar">
-    <div class="seg" role="group" aria-label="תצוגה">
-      <button type="button" id="v-press" aria-pressed="true"><span class="m">PRESS</span> · עמוד</button>
-      <button type="button" id="v-web" aria-pressed="false"><span class="m">WEB</span> · ספר דיגיטלי</button>
-    </div>
-    <div class="seg" role="group" aria-label="עמוד" id="pages">
-      <button type="button" id="pg-cover" aria-pressed="false">עטיפה</button>
-      <button type="button" id="pg-p1" aria-pressed="true">עמוד 1</button>
-    </div>
-  </div>
+  <!-- 1 upload -->
+  <section class="panel" id="s1">
+    <h2>העלאת הספר</h2>
+    <label class="drop" id="drop" for="fileIn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>
+      <span>גוררים לכאן PDF או סריקה</span>
+      <span class="btn ghost" role="presentation">בחירת קובץ</span>
+      <input type="file" id="fileIn" accept=".pdf,.zip,image/*" hidden>
+    </label>
+    <div class="row"><button type="button" class="linkbtn" id="useSample">או: קובץ ההדגמה, אהבת ציון, וילנה 1853</button></div>
+    <div id="fileCard" hidden></div>
+    <div class="row"><button type="button" class="btn" id="go2" disabled>חילוץ הטקסט</button></div>
+  </section>
 
-  <div class="tools">
-    <input class="search" id="q" type="search" placeholder="חיפוש בטקסט" aria-label="חיפוש בטקסט">
-    <span class="count" id="count" aria-live="polite"></span>
-  </div>
-
-  <section class="stage" id="press">
-    <div class="page" id="page">
-      <img id="scan" alt="העמוד המקורי, סריקה">
-      <div class="rest" id="rest" lang="he" dir="rtl"></div>
-      <div class="handle" aria-hidden="true"></div>
+  <!-- 2 text -->
+  <section class="panel" id="s2" hidden>
+    <div><h1>אהבת ציון · אברהם מאפו</h1><p class="sub">מהדורה ראשונה, וילנה תרי״ג (1853)</p></div>
+    <div id="extracting" class="panel">
+      <div class="prog"><i id="bar"></i></div>
+      <div class="progtxt" id="progtxt" aria-live="polite"></div>
     </div>
-    <div class="range" dir="ltr">
-      <span class="m">SSERP</span>
-      <input type="range" id="cut" min="0" max="100" value="50" dir="ltr" aria-label="מקור מול משוחזר">
-      <span class="m">PRESS</span>
+    <div id="textDone" class="panel" hidden>
+      <div class="row" style="justify-content:space-between">
+        <div class="seg" role="group" aria-label="עמוד">
+          <button type="button" id="pg-cover" aria-pressed="false">עטיפה</button>
+          <button type="button" id="pg-p1" aria-pressed="true">עמוד 1</button>
+        </div>
+        <div class="row"><input class="search" id="q" type="search" placeholder="חיפוש בטקסט" aria-label="חיפוש בטקסט"><span class="count" id="count" aria-live="polite"></span></div>
+      </div>
+      <div class="viewer" id="viewer1"></div>
+      <div class="row"><button type="button" class="btn" id="go3">ללוח התיקונים</button></div>
     </div>
   </section>
 
-  <section class="stage" id="web" hidden>
-    <div class="phone"><div class="screen" id="screen" lang="he" dir="rtl"></div></div>
-  </section>
-
-  <section class="dec">
-    <h2>החלטות</h2>
+  <!-- 3 corrections -->
+  <section class="panel" id="s3" hidden>
+    <h2>לוח תיקונים והחלטות</h2>
+    <div class="stats">
+      <div><b>2</b><span>עמודים נבדקו</span></div>
+      <div><b>0</b><span>תיקונים בטקסט</span></div>
+      <div><b>3</b><span>החלטות</span></div>
+    </div>
+    <div class="empty">לא נמצאו תיקונים. הטקסט נשאר כמו במקור.<small>תיקון שיימצא יופיע כאן, ואפשר יהיה לקבל אותו או להשאיר את הנוסח המקורי.</small></div>
     <table>
-      <tr><td>כתמי מים ולכלוך</td><td>הוסרו</td></tr>
-      <tr><td>חותמות וסימני ספרייה</td><td>לא נכללו</td></tr>
-      <tr><td>כתיב, ניקוד ופיסוק</td><td>כמו במקור</td></tr>
+      <thead><tr><th>החלטה</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>כתמי מים ולכלוך</td><td>הוסרו</td></tr>
+        <tr><td>חותמות וסימני ספרייה</td><td>לא נכללו</td></tr>
+        <tr><td>כתיב, ניקוד ופיסוק</td><td>כמו במקור</td></tr>
+      </tbody>
     </table>
+    <div class="row"><button type="button" class="btn" id="go4">אישור הטקסט · מעבר ל־PRESS</button></div>
+  </section>
+
+  <!-- 4 formats -->
+  <section class="panel" id="s4" hidden>
+    <h2>מה מפיקים</h2>
+    <div class="formats">
+      <label class="fmt"><input type="checkbox" value="pdf" checked><div><b>PDF לדפוס</b><span>עמוד מול עמוד</span></div></label>
+      <label class="fmt"><input type="checkbox" value="epub" checked><div><b>ספר דיגיטלי</b><span>EPUB</span></div></label>
+      <label class="fmt"><input type="checkbox" value="idml" checked><div><b>אינדיזיין</b><span>IDML, פתוח לעריכה</span></div></label>
+      <label class="fmt"><input type="checkbox" value="docx" checked><div><b>וורד</b><span>DOCX</span></div></label>
+    </div>
+    <div class="row"><button type="button" class="btn" id="go5">הפקה</button></div>
+  </section>
+
+  <!-- 5 files -->
+  <section class="panel" id="s5" hidden>
+    <h2>הקבצים</h2>
+    <div id="making" class="panel"><div class="prog"><i id="bar2"></i></div><div class="progtxt" id="progtxt2" aria-live="polite"></div></div>
+    <div id="made" class="panel" hidden>
+      <div id="fileList" class="panel" style="gap:8px"></div>
+      <div class="seg" role="group" aria-label="תצוגה מקדימה" id="prevTabs"></div>
+      <div class="viewer" id="viewer2"></div>
+      <div class="row"><button type="button" class="btn ghost" id="restart">התחלה מחדש</button></div>
+    </div>
   </section>
 
   <footer>
@@ -138,6 +224,7 @@ footer .addr{font-family:var(--mono);direction:ltr;user-select:all}
 </div>
 
 <script>
+// ---------- the restored text (as printed, 1853) ----------
 const P1 = [
 "[[איש]] היה בירושלים בימי אָחָז מלך יהודה ושמו יוֹרָם",
 "בן אֲבִיעֶזֶר , אלוף ביהודה ושר אלף , ויהי לו שדות וכרמים",
@@ -163,9 +250,6 @@ const P2 = [
 "קחת יורם את חגית אהובתו לאשה , וזה הדבר אשר לא נשמר",
 "יורם ממנו ויחשבהו לאוהב לו : כי יוזבד העריץ אבי מתן היה"
 ];
-
-// item: [text, top%, left%, right%, font-size cqw, mode, weight, ltr]
-// mode: j justify, r right, c center, s spread letters
 const PAGES = {
   p1:{img:'page1853.jpg', ratio:'2448 / 3920', items:[
     ['א',26.6,46,39,5.2,'c',900],
@@ -195,45 +279,37 @@ const PAGES = {
     ['1853.',89.0,46,47,3.0,'c',700,1]
   ]}
 };
+const SAMPLE = {name:'אהבת ציון – וילנה 1853', size:'32.4 MB', pages:222};
+const FMT = {
+  pdf:{label:'PDF לדפוס', file:'אהבת ציון 1853 – לדפוס', ic:'PDF'},
+  epub:{label:'ספר דיגיטלי', file:'אהבת ציון 1853', ic:'EPUB'},
+  idml:{label:'אינדיזיין', file:'אהבת ציון 1853', ic:'IDML'},
+  docx:{label:'וורד', file:'אהבת ציון 1853', ic:'DOCX'}
+};
 
-const MARKS = /[֑-ׇֽֿׁׂׅׄ]/g;
-const isMark = ch => /[֑-ׇֽֿׁׂׅׄ]/.test(ch);
-const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const toHTML = t => esc(t).replace(/\[\[(.+?)\]\]/g,'<b>$1</b>');
-let state = {page:'p1', view:'press', q:''};
-try{ const s=JSON.parse(localStorage.getItem('az1853')||'{}'); if(s.page&&PAGES[s.page]) state.page=s.page; if(s.view) state.view=s.view; }catch(e){}
-function save(){ try{ localStorage.setItem('az1853',JSON.stringify({page:state.page,view:state.view})); }catch(e){} }
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const MARKS=/[֑-ׇֽֿׁׂׅׄ]/g;
+const isMark=ch=>/[֑-ׇֽֿׁׂׅׄ]/.test(ch);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const toHTML=t=>esc(t).replace(/\[\[(.+?)\]\]/g,'<b>$1</b>');
+const S={step:1, reached:1, file:null, page:'p1', q:'', fmts:[], prev:null};
 
-function textNodes(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); const a=[]; let n; while(n=w.nextNode()) a.push(n); return a; }
+function textNodes(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const a=[];let n;while(n=w.nextNode())a.push(n);return a;}
 function applySearch(root){
-  const q=state.q.replace(MARKS,'').trim(); if(!q) return 0; let total=0;
+  const q=S.q.replace(MARKS,'').trim(); if(!q) return 0; let total=0;
   textNodes(root).forEach(n=>{
-    const s=n.nodeValue; let base='', map=[];
-    for(let i=0;i<s.length;i++){ if(!isMark(s[i])){ map.push(i); base+=s[i]; } }
-    const hits=[]; let k=base.indexOf(q); while(k>-1){ hits.push(k); k=base.indexOf(q,k+q.length); }
+    const s=n.nodeValue; let base='',map=[];
+    for(let i=0;i<s.length;i++){ if(!isMark(s[i])){map.push(i);base+=s[i];} }
+    const hits=[]; let k=base.indexOf(q); while(k>-1){hits.push(k);k=base.indexOf(q,k+q.length);}
     if(!hits.length) return; total+=hits.length;
-    const frag=document.createDocumentFragment(); let pos=0;
-    hits.forEach(h=>{ const a=map[h]; const b=(h+q.length<map.length)?map[h+q.length]:s.length;
-      frag.append(s.slice(pos,a)); const m=document.createElement('mark'); m.textContent=s.slice(a,b); frag.append(m); pos=b; });
-    frag.append(s.slice(pos)); n.replaceWith(frag);
+    const f=document.createDocumentFragment(); let pos=0;
+    hits.forEach(h=>{const a=map[h];const b=(h+q.length<map.length)?map[h+q.length]:s.length;f.append(s.slice(pos,a));const m=document.createElement('mark');m.textContent=s.slice(a,b);f.append(m);pos=b;});
+    f.append(s.slice(pos)); n.replaceWith(f);
   });
   return total;
 }
-
-const pageEl=document.getElementById('page'), rest=document.getElementById('rest'), scan=document.getElementById('scan');
-function renderPage(){
-  const P=PAGES[state.page]; scan.src=P.img; pageEl.style.aspectRatio=P.ratio; rest.innerHTML='';
-  P.items.forEach(it=>{
-    if(it[0]==='__rule'||it[0]==='__thick'){ const r=document.createElement('div'); r.className='rule'+(it[0]==='__thick'?' thick':''); r.style.top=it[1]+'%'; r.style.left=it[2]+'%'; r.style.right=it[3]+'%'; rest.append(r); return; }
-    const [t,top,left,right,fs,mode,wt,ltr]=it;
-    const d=document.createElement('div'); d.className='ln '+(mode==='c'?'c':mode==='r'?'r':'j')+(ltr?' ltr':''); d.dataset.mode=mode;
-    if(ltr) d.dir='ltr';
-    d.style.top=top+'%'; d.style.left=left+'%'; d.style.right=right+'%'; d.style.fontSize=fs+'cqw'; d.dataset.fs=fs; d.style.fontWeight=wt;
-    const s=document.createElement('span'); s.innerHTML=toHTML(t); d.append(s); rest.append(d);
-  });
-  const n=applySearch(rest); fitAll(); return n;
-}
-function fitAll(){
+function fitAll(rest){
   rest.querySelectorAll('.ln').forEach(d=>{
     const s=d.firstChild, mode=d.dataset.mode;
     d.style.fontSize=d.dataset.fs+'cqw'; s.style.wordSpacing='0px'; s.style.letterSpacing='0px';
@@ -241,44 +317,125 @@ function fitAll(){
     if(w>box){ d.style.fontSize=(parseFloat(d.dataset.fs)*box/w*0.995)+'cqw'; w=s.getBoundingClientRect().width; }
     const extra=box-w; if(extra<=0.5) return;
     const txt=s.textContent.replace(MARKS,'');
-    if(mode==='j'){ const gaps=(txt.match(/ /g)||[]).length; if(gaps) s.style.wordSpacing=(extra/gaps)+'px'; }
-    else if(mode==='s'){ const chars=[...txt].length; if(chars>1) s.style.letterSpacing=(extra/(chars-1))+'px'; }
+    if(mode==='j'){const g=(txt.match(/ /g)||[]).length; if(g) s.style.wordSpacing=(extra/g)+'px';}
+    else if(mode==='s'){const c=[...txt].length; if(c>1) s.style.letterSpacing=(extra/(c-1))+'px';}
   });
 }
-function renderWeb(){
-  const sc=document.getElementById('screen');
-  sc.innerHTML='<p class="au">אברהם מאפו</p><h3>אהבת ציון</h3><div class="ch">א</div><p>'+toHTML(P1.join(' '))+'</p><p>'+toHTML(P2.join(' '))+' …</p>';
-  return applySearch(sc);
+// builds a page; withScan=true gives the slider comparison
+function buildPage(host, key, withScan){
+  host.innerHTML='';
+  const P=PAGES[key];
+  const page=document.createElement('div'); page.className='page'+(withScan?'':' full'); page.style.aspectRatio=P.ratio;
+  if(withScan){ const img=document.createElement('img'); img.src=P.img; img.alt='העמוד המקורי, סריקה'; page.append(img); }
+  const rest=document.createElement('div'); rest.className='rest'; rest.lang='he'; rest.dir='rtl'; page.append(rest);
+  if(withScan){ const h=document.createElement('div'); h.className='handle'; h.setAttribute('aria-hidden','true'); page.append(h); }
+  P.items.forEach(it=>{
+    if(it[0]==='__rule'||it[0]==='__thick'){const r=document.createElement('div');r.className='rule'+(it[0]==='__thick'?' thick':'');r.style.top=it[1]+'%';r.style.left=it[2]+'%';r.style.right=it[3]+'%';rest.append(r);return;}
+    const [t,top,left,right,fs,mode,wt,ltr]=it;
+    const d=document.createElement('div'); d.className='ln '+(mode==='c'?'c':mode==='r'?'r':'j')+(ltr?' ltr':''); d.dataset.mode=mode; if(ltr) d.dir='ltr';
+    d.style.top=top+'%'; d.style.left=left+'%'; d.style.right=right+'%'; d.style.fontSize=fs+'cqw'; d.dataset.fs=fs; d.style.fontWeight=wt;
+    const s=document.createElement('span'); s.innerHTML=toHTML(t); d.append(s); rest.append(d);
+  });
+  host.append(page);
+  let n=0;
+  if(withScan){
+    const range=document.createElement('div'); range.className='range'; range.dir='ltr';
+    range.innerHTML='<span class="m">SSERP</span><input type="range" min="0" max="100" value="50" aria-label="מקור מול משוחזר"><span class="m">PRESS</span>';
+    host.append(range);
+    const cut=range.querySelector('input'); const set=()=>page.style.setProperty('--cut',cut.value+'%');
+    cut.addEventListener('input',set); set();
+    let drag=false; const to=e=>{const r=page.getBoundingClientRect();cut.value=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));set();};
+    page.addEventListener('pointerdown',e=>{drag=true;try{page.setPointerCapture(e.pointerId);}catch(_){}to(e);});
+    page.addEventListener('pointermove',e=>{if(drag)to(e);});
+    page.addEventListener('pointerup',()=>drag=false); page.addEventListener('pointercancel',()=>drag=false);
+    n=applySearch(rest);
+  }
+  fitAll(rest);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>fitAll(rest));
+  new ResizeObserver(()=>fitAll(rest)).observe(page);
+  return n;
 }
 
-const cut=document.getElementById('cut');
-const setCut=()=>pageEl.style.setProperty('--cut',cut.value+'%');
-cut.addEventListener('input',setCut); setCut();
-let drag=false;
-function dragTo(e){ const r=pageEl.getBoundingClientRect(); const v=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)); cut.value=v; setCut(); }
-pageEl.addEventListener('pointerdown',e=>{ drag=true; try{pageEl.setPointerCapture(e.pointerId);}catch(_){} dragTo(e); });
-pageEl.addEventListener('pointermove',e=>{ if(drag) dragTo(e); });
-pageEl.addEventListener('pointerup',()=>{ drag=false; });
-pageEl.addEventListener('pointercancel',()=>{ drag=false; });
-function refresh(){
-  document.getElementById('press').hidden=state.view!=='press';
-  document.getElementById('web').hidden=state.view!=='web';
-  document.getElementById('v-press').setAttribute('aria-pressed',state.view==='press');
-  document.getElementById('v-web').setAttribute('aria-pressed',state.view==='web');
-  document.getElementById('pg-cover').setAttribute('aria-pressed',state.page==='cover');
-  document.getElementById('pg-p1').setAttribute('aria-pressed',state.page==='p1');
-  document.getElementById('pages').style.visibility=state.view==='press'?'visible':'hidden';
-  const n=state.view==='press'?renderPage():renderWeb();
-  document.getElementById('count').textContent=state.q.trim()?(n?n+' מופעים':'לא נמצא'):'';
+// ---------- steps ----------
+function go(step){
+  S.step=step; S.reached=Math.max(S.reached,step);
+  for(let i=1;i<=5;i++) $('s'+i).hidden = i!==step;
+  document.querySelectorAll('.steps button').forEach(b=>{
+    const k=+b.dataset.step; b.className = k===step?'cur':(k<=S.reached?'done':'');
+    b.disabled = !(k<=S.reached) ; if(k===step) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current');
+  });
+  $('h-sserp').classList.toggle('on',step<=3); $('h-press').classList.toggle('on',step>=4);
+  if(step===2) showText();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-document.getElementById('v-press').onclick=()=>{state.view='press';save();refresh();};
-document.getElementById('v-web').onclick=()=>{state.view='web';save();refresh();};
-document.getElementById('pg-cover').onclick=()=>{state.page='cover';save();refresh();};
-document.getElementById('pg-p1').onclick=()=>{state.page='p1';save();refresh();};
-document.getElementById('q').oninput=e=>{state.q=e.target.value;refresh();};
-new ResizeObserver(()=>{ if(state.view==='press') fitAll(); }).observe(pageEl);
-refresh();
-if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ if(state.view==='press') fitAll(); });
+document.querySelectorAll('.steps button').forEach(b=>b.addEventListener('click',()=>{const k=+b.dataset.step; if(k<=S.reached && k!==S.step) go(k);}));
+
+// 1 · file
+function setFile(f){
+  S.file=f;
+  $('fileCard').hidden=false;
+  $('fileCard').innerHTML='<div class="file"><span class="ic">PDF</span><div><div class="nm"></div><div class="meta"></div></div><span class="st">התקבל</span></div>';
+  $('fileCard').querySelector('.nm').textContent=f.name; $('fileCard').querySelector('.nm').dir='auto';
+  $('fileCard').querySelector('.meta').textContent=f.size+(f.pages?' · '+f.pages+' עמודים':'');
+  $('go2').disabled=false;
+}
+const fmtSize=b=>b>1e6?(b/1e6).toFixed(1)+' MB':Math.max(1,Math.round(b/1e3))+' KB';
+$('fileIn').addEventListener('change',e=>{const f=e.target.files[0]; if(f) setFile({name:f.name,size:fmtSize(f.size)});});
+$('useSample').addEventListener('click',()=>setFile(SAMPLE));
+const drop=$('drop');
+['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f) setFile({name:f.name,size:fmtSize(f.size)});});
+$('go2').addEventListener('click',()=>{S.extracted=false; go(2);});
+
+// 2 · text
+function run(bar,txt,steps,done){
+  let i=0; const tick=()=>{ if(i>=steps.length){done();return;} bar.style.width=((i+1)/steps.length*100)+'%'; txt.textContent=steps[i]; i++; setTimeout(tick,650); }; bar.style.width='0'; tick();
+}
+function showText(){
+  if(S.extracted){ $('extracting').hidden=true; $('textDone').hidden=false; renderText(); return; }
+  $('extracting').hidden=false; $('textDone').hidden=true;
+  run($('bar'),$('progtxt'),['קליטת הקובץ','עטיפה','עמוד 1','השוואה מול המקור','הטקסט מוכן'],()=>{S.extracted=true;$('extracting').hidden=true;$('textDone').hidden=false;renderText();});
+}
+function renderText(){
+  $('pg-cover').setAttribute('aria-pressed',S.page==='cover'); $('pg-p1').setAttribute('aria-pressed',S.page==='p1');
+  const n=buildPage($('viewer1'),S.page,true);
+  $('count').textContent=S.q.trim()?(n?n+' מופעים':'לא נמצא'):'';
+}
+$('pg-cover').onclick=()=>{S.page='cover';renderText();};
+$('pg-p1').onclick=()=>{S.page='p1';renderText();};
+$('q').oninput=e=>{S.q=e.target.value;renderText();};
+$('go3').addEventListener('click',()=>go(3));
+
+// 3 · corrections
+$('go4').addEventListener('click',()=>go(4));
+
+// 4 · formats
+$('go5').addEventListener('click',()=>{
+  S.fmts=[...document.querySelectorAll('.fmt input:checked')].map(i=>i.value);
+  if(!S.fmts.length) return;
+  S.prev=S.fmts[0]; go(5); make();
+});
+document.querySelectorAll('.fmt input').forEach(i=>i.addEventListener('change',()=>{$('go5').disabled=!document.querySelector('.fmt input:checked');}));
+
+// 5 · files
+function make(){
+  $('making').hidden=false; $('made').hidden=true;
+  run($('bar2'),$('progtxt2'),[...S.fmts.map(f=>FMT[f].label),'הקבצים מוכנים'],()=>{$('making').hidden=true;$('made').hidden=false;renderFiles();});
+}
+function renderFiles(){
+  $('fileList').innerHTML='';
+  S.fmts.forEach(f=>{const d=document.createElement('div');d.className='file';d.innerHTML='<span class="ic"></span><div><div class="nm"></div><div class="meta"></div></div><span class="st">מוכן</span>';d.querySelector('.ic').textContent=FMT[f].ic;d.querySelector('.nm').textContent=FMT[f].file;d.querySelector('.meta').textContent=FMT[f].label;$('fileList').append(d);});
+  $('prevTabs').innerHTML='';
+  S.fmts.forEach(f=>{const b=document.createElement('button');b.type='button';b.textContent=FMT[f].label;b.setAttribute('aria-pressed',S.prev===f);b.onclick=()=>{S.prev=f;renderFiles();};$('prevTabs').append(b);});
+  const v=$('viewer2'); v.innerHTML='';
+  if(S.prev==='pdf'||S.prev==='idml'){ buildPage(v,'p1',false); }
+  else if(S.prev==='epub'){ v.innerHTML='<div class="phone"><div class="screen" lang="he" dir="rtl"><p class="au">אברהם מאפו</p><h3>אהבת ציון</h3><div class="ch">א</div><p>'+toHTML(P1.join(' '))+'</p><p>'+toHTML(P2.join(' '))+' …</p></div></div>'; }
+  else { v.innerHTML='<div class="doc" lang="he" dir="rtl"><p class="t">א</p><p>'+toHTML(P1.join(' '))+'</p><p>'+toHTML(P2.join(' '))+' …</p></div>'; }
+}
+$('restart').addEventListener('click',()=>{S.reached=1;S.file=null;S.extracted=false;S.q='';$('q').value='';$('fileCard').hidden=true;$('go2').disabled=true;$('fileIn').value='';go(1);});
+
+go(1);
 </script>
 </body>
 </html>
